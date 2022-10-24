@@ -6,7 +6,7 @@ soup = BeautifulSoup(requests.get("https://comic.naver.com/webtoon/detail?titleI
 image_list = []
 counter = 0
 while True:
-	element = soup.find(id="content_image_1")
+	element = soup.find(id=f"content_image_{counter}")
 	if not element:
 		break
 	image_list.append(element["src"])
