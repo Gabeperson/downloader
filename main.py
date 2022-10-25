@@ -78,7 +78,8 @@ for chapter in chapters_list:  # [Chapter url, chapter #]
 		image_queue.put([element["src"], chapter_dir, counter])  # [0] is image url,
 		counter += 1
 
-if sum([bool(thread.is_alive()) for thread in threads]) != 0:
+# wait for all the threads to finish
+while sum([bool(thread.is_alive()) for thread in threads]) != 0:
 	time.sleep(5)
 
 
