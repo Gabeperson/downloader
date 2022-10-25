@@ -6,15 +6,24 @@ import queue
 import threading
 import time
 from fake_useragent import UserAgent
+from json import dumps
+
+with open("config.json", "r") as f:
+	config = f.read().strip(" \n").split("\n")
+
+
+threads = int(re.sub("threads=", "", config[0]))
+config_url = re.sub("webtoon_end_link=", "", config[1])
+width_percentage = re.sub("image_width_percent", "", config[2])
 
 
 
 ua = UserAgent(path="UserAgent_data.json")
 
 # set max threads
-max_threads = 4
+max_threads = threads
 # set url (TODO: Get user input)
-url = "https://comic.naver.com/webtoon/detail?titleId=183559&no=5&weekday=sun"
+url = config_url
 
 
 # strip url of weekday and number using regex :)
@@ -23,16 +32,16 @@ chapter_number = int(re.search(r"\d{1,4}(?![a-zA-Z0-9&])", url).group())  # get 
 url = re.sub(r"\d{1,4}(?![a-zA-Z0-9&])", "", url)  # 1-4 digits + negative lookahead for any character, number, or & sign
 
 chapters_list = [(url + str(numb + 1), str(numb + 1)) for numb in range(chapter_number)]  # create list of all chapters til max chap numb
-print(f"Chapters List: {chapters_list}")
 
 # load
 soup = BeautifulSoup(requests.get(chapters_list[0][0]).text, "html.parser")
 
 # get series name
 series_title = soup.find(class_="title").decode_contents()
-print(series_title)
 
 # make dirs
+if not os.path.exists("files"):
+	os.mkdir("files")
 files_dir = os.path.join(os.getcwd(), "files", series_title)
 if not os.path.exists(files_dir):
 	os.mkdir(files_dir)
@@ -81,8 +90,7 @@ if sum([bool(thread.is_alive()) for thread in threads]) != 0:
 
 # create html that includes all the image files
 directories = [path for path in os.listdir(images_dir) if os.path.isdir(os.path.join(images_dir, path))]
-print(os.listdir(images_dir))
-print(directories)
+
 
 
 def get_files(lookup_path):
@@ -92,6 +100,6 @@ for directory in directories:
 	with open(os.path.join(files_dir, f"c{directory}.html"), "wb") as f:
 		html_string = f"<title>{series_title} c{directory}</title><center><h1>{series_title} c{directory}</h1>"
 		for image in get_files(os.path.join(images_dir, directory)):
-			html_string += f"<img style='width: 60vw;' src={os.path.join('images', directory, image)}>"
+			html_string += f"<img style='width: {width_percentage}vw; display: block;' src={os.path.join('images', directory, image)}>"
 		html_string += "</center>"
 		f.write(html_string.encode())
