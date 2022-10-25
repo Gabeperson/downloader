@@ -5,8 +5,6 @@ import os
 import queue
 import threading
 import time
-from fake_useragent import UserAgent
-from json import dumps
 
 with open("config.txt", "r") as f:
 	config = f.read().strip(" \n").split("\n")
@@ -17,8 +15,6 @@ config_url = re.sub("webtoon_end_link=", "", config[1])
 width_percentage = re.sub("image_width_percent", "", config[2])
 
 
-
-ua = UserAgent(path="UserAgent_data.json")
 
 # set max threads
 max_threads = threads
@@ -51,9 +47,6 @@ if not os.path.exists(images_dir):
 
 # make main queue for threads
 image_queue = queue.Queue()
-headers = {
-	"User-Agent": ua.chrome
-}
 
 def thread_function():
 	while True:
@@ -61,7 +54,7 @@ def thread_function():
 			image = image_queue.get(timeout=10)  # [Image url, chapter dir, image number]
 		except queue.Empty:
 			break
-		r = requests.get(image[0], stream=True, headers=headers)
+		r = requests.get(image[0], stream=True, headers={"User-Agent": 'Mozilla/5.0'})
 		with open(os.path.join(image[1], f"{image[2]}.jpg"), "wb") as f:
 			if r.status_code == 200:
 				for chunk in r.iter_content(256):
