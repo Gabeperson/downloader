@@ -59,6 +59,7 @@ def thread_function():
 			if r.status_code == 200:
 				for chunk in r.iter_content(256):
 					f.write(chunk)
+		print("Finished chapter " + image[1].split('images\\')[1] + f", image {image[2]}")
 
 threads = [threading.Thread(target=thread_function, daemon=True) for _ in range(max_threads)]
 for thread in threads:
