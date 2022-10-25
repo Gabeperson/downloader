@@ -8,7 +8,7 @@ import time
 from fake_useragent import UserAgent
 from json import dumps
 
-with open("config.json", "r") as f:
+with open("config.txt", "r") as f:
 	config = f.read().strip(" \n").split("\n")
 
 
